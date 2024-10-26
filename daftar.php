@@ -1,3 +1,42 @@
+<?php 
+require 'config/koneksi.php'; 
+session_start(); // Memulai session
+
+// Ambil data program
+$programOptions = '';
+$queryProgram = "SELECT * FROM program"; // Pastikan tabel dan kolom sudah sesuai
+$resultProgram = mysqli_query($conn, $queryProgram);
+
+while ($row = mysqli_fetch_assoc($resultProgram)) {
+    $programOptions .= "<option value=\"{$row['id']}\">{$row['nama']}</option>"; // Ganti 'nama_program' dengan kolom yang tepat
+}
+
+// Ambil data jenjang
+$jenjangOptions = '';
+$queryJenjang = "SELECT * FROM jenjang"; // Pastikan tabel dan kolom sudah sesuai
+$resultJenjang = mysqli_query($conn, $queryJenjang);
+
+while ($row = mysqli_fetch_assoc($resultJenjang)) {
+    $jenjangOptions .= "<option value=\"{$row['id']}\">{$row['nama']}</option>"; // Ganti 'nama_jenjang' dengan kolom yang tepat
+}
+
+// Fungsi untuk mengupdate sekolah berdasarkan jenjang
+function getSchools($jenjangId) {
+    global $conn; // Pastikan menggunakan koneksi global
+    $schoolOptions = '';
+    $querySchools = "SELECT * FROM sekolah WHERE jenjang_id = '$jenjangId'"; // Sesuaikan dengan kolom yang ada
+    $resultSchools = mysqli_query($conn, $querySchools);
+
+    while ($row = mysqli_fetch_assoc($resultSchools)) {
+        $schoolOptions .= "<option value=\"{$row['id']}\">{$row['nama_sekolah']}</option>"; // Ganti 'nama_sekolah' dengan kolom yang tepat
+    }
+
+    return $schoolOptions;
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -58,6 +97,7 @@
     <div id="step1" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white">1</div>
 <div id="step2" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white">2</div>
 <div id="step3" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white">3</div>
+<div id="step4" class="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white">4</div>
 
     </div>
 </div>
@@ -155,6 +195,7 @@
                 </div>
             </div>
 
+
             <!-- Step 3: Data Wali dan Dokumen Pendukung -->
             <div class="step hidden">
                 <h3 class="text-xl font-semibold mb-3 bg-green-100 p-2 rounded">Data Wali:</h3>
@@ -180,6 +221,33 @@
                         <input type="text" id="nomor_wa" name="nomor_wa" placeholder="Nomor WA" required class="mt-1 p-2 border-b border-gray-300 focus:outline-none focus:border-green-600 w-full" />
                     </div>
                 </div>
+
+                <h3 class="text-xl font-semibold mb-3 bg-green-100 p-2 rounded">Program & Sekolah Pilihan:</h3>
+    <div class="grid grid-cols-1 gap-4">
+        <div class="flex items-center mb-4">
+            <i class="fas fa-graduation-cap mr-2"></i>
+            <select id="program" name="program" required class="mt-1 p-2 border-b border-gray-300 focus:outline-none focus:border-green-600 w-full">
+                <option value="" disabled selected hidden>Pilih Program</option>
+                <?php echo $programOptions; ?>
+            </select>
+        </div>
+
+        <div class="flex items-center mb-4">
+            <i class="fas fa-school mr-2"></i>
+            <select id="jenjang" name="jenjang" required class="mt-1 p-2 border-b border-gray-300 focus:outline-none focus:border-green-600 w-full" onchange="updateSchools()">
+                <option value="" disabled selected hidden>Pilih Jenjang</option>
+                <?php echo $jenjangOptions; ?>
+            </select>
+        </div>
+
+        <div class="flex items-center mb-4">
+            <i class="fas fa-school mr-2"></i>
+            <select id="sekolah" name="sekolah" required class="mt-1 p-2 border-b border-gray-300 focus:outline-none focus:border-green-600 w-full">
+                <option value="" disabled selected hidden>Pilih Sekolah</option>
+            </select>
+        </div>
+    </div>
+
 
                 <h3 class="text-xl font-semibold mb-3 bg-green-100 p-2 rounded">Dokumen Pendukung:</h3>
 <div class="grid grid-cols-1 gap-4">
@@ -231,12 +299,15 @@ function showStep(step) {
     document.getElementById('prevBtn').classList.toggle('hidden', step === 0);
     
     const nextBtn = document.getElementById('nextBtn');
-    nextBtn.textContent = step === 2 ? 'Kirim' : 'Selanjutnya';
+    nextBtn.textContent = step === steps.length - 1 ? 'Kirim' : 'Selanjutnya';
 
-    document.getElementById('submitBtn').classList.toggle('hidden', step !== steps.length - 1);
-    
     // Update step indicators
-    const stepElements = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+    const stepElements = [
+        document.getElementById('step1'), 
+        document.getElementById('step2'), 
+        document.getElementById('step3'),
+        document.getElementById('step4')
+    ];
     
     // Update background color based on input validation
     stepElements.forEach((el, index) => {
@@ -259,7 +330,7 @@ function validateInputs() {
 
 document.getElementById('nextBtn').addEventListener('click', () => {
     if (validateInputs()) {
-        if (currentStep < 2) {
+        if (currentStep < 3) { // Update for 4 steps
             currentStep++;
             showStep(currentStep);
         } else {
@@ -297,6 +368,7 @@ document.getElementById('prevBtn').addEventListener('click', () => {
     }
 });
 
+// Dropdown menu functionality
 document.getElementById('menu-btn').addEventListener('click', () => {
     const dropdownMenu = document.getElementById('dropdownMenu');
     dropdownMenu.classList.toggle('hidden');
@@ -312,10 +384,27 @@ document.addEventListener('click', (event) => {
     }
 });
 
+function updateSchools() {
+            var jenjangId = document.getElementById("jenjang").value;
+            var sekolahSelect = document.getElementById("sekolah");
+            sekolahSelect.innerHTML = ''; // Kosongkan dropdown sekolah
+
+            if (jenjangId) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "get_schools.php?jenjang_id=" + jenjangId, true); // Ganti dengan file PHP untuk mengambil sekolah
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        sekolahSelect.innerHTML = xhr.responseText; // Isi dropdown sekolah dengan respons
+                    }
+                };
+                xhr.send();
+            }
+        }
+
 // Initial display
 showStep(currentStep);
-
 </script>
+
 
 </body>
 </html>

@@ -22,6 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $penghasilan_wali = htmlspecialchars(trim($_POST['penghasilan_wali']));
     $alamat_wali = htmlspecialchars(trim($_POST['alamat_wali']));
     $nomor_wa = htmlspecialchars(trim($_POST['nomor_wa']));
+    $program = htmlspecialchars(trim($_POST['program']));
+    $jenjang = htmlspecialchars(trim($_POST['jenjang']));
+    $sekolah_pilihan = htmlspecialchars(trim($_POST['sekolah'])); 
+
 
     // Menghasilkan no_pendaftaran
     $no_pendaftaran = 'PSB-' . str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
@@ -75,11 +79,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $insert_santri = "INSERT INTO data_santri (nama_lengkap, tempat_lahir, tanggal_lahir, jenis_kelamin, asal_sekolah, 
                       nama_ayah, pekerjaan_ayah, penghasilan_ayah, status_ayah, nama_ibu, pekerjaan_ibu, 
                       penghasilan_ibu, status_ibu, nama_wali, pekerjaan_wali, penghasilan_wali, alamat_wali, 
-                      nomor_wa, no_pendaftaran, status, pas_foto, scan_kk, scan_ktp_ortu, scan_akta, scan_skl) 
+                      nomor_wa, program, jenjang, sekolah_pilihan, no_pendaftaran, status, pas_foto, scan_kk, scan_ktp_ortu, scan_akta, scan_skl) 
                       VALUES ('$nama_lengkap', '$tempat_lahir', '$tanggal_lahir', '$jenis_kelamin', '$asal_sekolah', 
                       '$nama_ayah', '$pekerjaan_ayah', '$penghasilan_ayah', '$status_ayah', '$nama_ibu', 
                       '$pekerjaan_ibu', '$penghasilan_ibu', '$status_ibu', '$nama_wali', 
-                      '$pekerjaan_wali', '$penghasilan_wali', '$alamat_wali', '$nomor_wa', 
+                      '$pekerjaan_wali', '$penghasilan_wali', '$alamat_wali', '$nomor_wa', '$program', '$jenjang', '$sekolah_pilihan', 
                       '$no_pendaftaran', 'pending', '{$filePaths['pas_foto']}', '{$filePaths['scan_kk']}', 
                       '{$filePaths['scan_ktp_ortu']}', '{$filePaths['scan_akta']}', '{$filePaths['scan_skl']}')";
 
