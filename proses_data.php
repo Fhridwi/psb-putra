@@ -33,32 +33,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Menghash password
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    // Cek apakah no_pendaftaran sudah ada
+    $check_query = "SELECT * FROM data_santri WHERE no_pendaftaran = '$no_pendaftaran'";
+    $check_result = mysqli_query($conn, $check_query);
+
+    if (mysqli_num_rows($check_result) > 0) {
+        echo "Pendaftaran dengan nomor $no_pendaftaran sudah ada. Silakan coba lagi.";
+        exit();
+    }
+
     // Tentukan direktori target untuk unggahan
     $targetDir = "uploads/";
 
     // Membuat subdirektori jika belum ada
-    if (!is_dir($targetDir . 'pas_foto/')) {
-        mkdir($targetDir . 'pas_foto/', 0777, true);
-    }
-    if (!is_dir($targetDir . 'scan_kk/')) {
-        mkdir($targetDir . 'scan_kk/', 0777, true);
-    }
-    if (!is_dir($targetDir . 'scan_ktp_ortu/')) {
-        mkdir($targetDir . 'scan_ktp_ortu/', 0777, true);
-    }
-    if (!is_dir($targetDir . 'scan_akta/')) {
-        mkdir($targetDir . 'scan_akta/', 0777, true);
-    }
-    if (!is_dir($targetDir . 'scan_skl/')) {
-        mkdir($targetDir . 'scan_skl/', 0777, true);
+    $subDirs = ['pas_foto', 'scan_kk', 'scan_ktp_ortu', 'scan_akta', 'scan_skl'];
+    foreach ($subDirs as $subDir) {
+        if (!is_dir($targetDir . $subDir)) {
+            mkdir($targetDir . $subDir, 0777, true);
+        }
     }
 
     // Variabel untuk menyimpan jalur file
     $filePaths = [];
 
     // Tangani unggahan file
-    $fileKeys = ['pas_foto', 'scan_kk', 'scan_ktp_ortu', 'scan_akta', 'scan_skl'];
-    foreach ($fileKeys as $key) {
+    foreach ($subDirs as $key) {
         if (isset($_FILES[$key]) && $_FILES[$key]['error'] == 0) {
             $fileType = strtolower(pathinfo($_FILES[$key]["name"], PATHINFO_EXTENSION));
             $newFileName = $targetDir . $key . '/' . $key . '_' . $no_pendaftaran . '.' . $fileType;

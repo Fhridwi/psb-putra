@@ -16,6 +16,18 @@ $stmt->execute();
 $stmt->bind_result($status);
 $stmt->fetch();
 $stmt->close();
+
+$user_id = $_SESSION['user_id'];
+// Ambil data santri dari database
+$query = "SELECT pas_foto FROM data_santri WHERE id = '$user_id'";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0 ) {
+    $row = mysqli_fetch_assoc($result);
+    $foto_profil = '../' . $row['pas_foto'] ; 
+} else {
+    $foto_profil = '../assets/default.png'; 
+}
 ?>
 
 <!DOCTYPE html>
@@ -77,7 +89,7 @@ $stmt->close();
             <hr class="border-gray-600 mb-6" />
 
             <div class="flex items-center mb-6">
-                <img alt="User profile picture" class="rounded-full w-10 h-10 mr-2" src="../assets/default.png" />
+                <img alt="User profile picture" class="rounded-full w-10 h-10 mr-2 object-cover object-top" src="<?= $foto_profil ?>" />
                 <span><?= htmlspecialchars($_SESSION['username']) ?></span>
             </div>
 
@@ -124,19 +136,26 @@ $stmt->close();
        <!-- New Menu Items Below Status -->
 <div class="mt-6">
     <h2 class="text-lg font-bold mb-4">Menu Akses</h2>
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-green-900 text-white p-4 rounded-lg shadow-md flex flex-col items-center">
+        
+    <div class="bg-green-900 text-white p-4 rounded-lg shadow-md flex flex-col items-center">
             <i class="fas fa-user fa-2x mb-2"></i>
             <a class="text-center" href="data_detail.php">Data Anda</a>
         </div>
+
         <div class="bg-green-900 text-white p-4 rounded-lg shadow-md flex flex-col items-center">
-            <i class="fas fa-print fa-2x mb-2"></i>
-            <a class="text-center" href="#">Cetak Bukti Daftar</a>
-        </div>
-        <div class="bg-green-900 text-white p-4 rounded-lg shadow-md flex flex-col items-center">
-            <i class="fas fa-envelope fa-2x mb-2"></i>
-            <a class="text-center" href="#">Kontak Panitia</a>
-        </div>
+    <i class="fas fa-print fa-2x mb-2"></i>
+    <a class="text-center" href="../generate_pdf.php" onclick="setTimeout(function(){ window.location.href='index.php'; }, 1000); return true;">Cetak Bukti Daftar</a>
+</div>
+
+<a class="text-center" href="https://wa.me/6285792336956" target="_blank">
+<div class="bg-green-900 text-white p-4 rounded-lg shadow-md flex flex-col items-center">
+    <i class="fas fa-envelope fa-2x mb-2"></i>
+   Kontak Panitia
+</div>
+</a>
+
     </div>
 </div>
 

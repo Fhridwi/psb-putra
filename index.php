@@ -19,14 +19,14 @@
         }
 
         .bg-section {
-            background-image: url('assets/background.jpg'); /* Ganti dengan URL gambar latar belakang yang diinginkan */
+            background-image: url('assets/background.jpg');
             background-size: cover;
             background-position: center;
             position: relative;
         }
 
         .bg-opacity {
-            background-color: rgba(255, 255, 255, 0.7); /* Efek opacity putih */
+            background-color: rgba(255, 255, 255, 0.7); 
             position: relative;
             z-index: 10;
         }
